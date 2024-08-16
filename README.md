@@ -111,4 +111,4 @@ a project for web dev UTH
   XAMPP: https://www.wikihow.com/Set-up-a-Personal-Web-Server-with-XAMPP
   Docker: https://www.sitepoint.com/php-development-environment/
 ```
-  **5. Run PHP Server and test featuring**
+  *5. Run PHP Server and test featuring*
