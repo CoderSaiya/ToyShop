@@ -100,10 +100,15 @@ a project for web dev UTH
       FOREIGN KEY (user_id) REFERENCES Users(user_id),
       FOREIGN KEY (product_id) REFERENCES Products(product_id)
   );
-**2. Clone this project to your device**
+```
+*2. Clone this project to your device*
+```git
   git clone <url of repository>
-**3. Create sample data for testing**
-**4. Set up enviriroment for MySQL and PHP Server by XAMPP or Docker**
+```
+*3. Create sample data for testing*
+*4. Set up enviriroment for MySQL and PHP Server by XAMPP or Docker*
+```link
   XAMPP: https://www.wikihow.com/Set-up-a-Personal-Web-Server-with-XAMPP
   Docker: https://www.sitepoint.com/php-development-environment/
+```
   **5. Run PHP Server and test featuring**
