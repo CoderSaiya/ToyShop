@@ -106,7 +106,7 @@ a project for web dev UTH
   git clone <url of repository>
 ```
 *3. Create sample data for testing*
-``` ```
+
 *4. Set up enviriroment for MySQL and PHP Server by XAMPP or Docker*
 ```link
   XAMPP: https://www.wikihow.com/Set-up-a-Personal-Web-Server-with-XAMPP
