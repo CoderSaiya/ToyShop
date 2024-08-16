@@ -1,7 +1,8 @@
 # ToyShop
 a project for web dev UTH
 # Set up
-**1. Run script to create database**
+*1. Run script to create database*
+```sql
   -- Drop tables if they exist
   DROP TABLE IF EXISTS ProductOrders;
   DROP TABLE IF EXISTS Wishlist;
