@@ -107,7 +107,7 @@ a project for web dev UTH
 ```
 *3. Create sample data for testing*
 
-*4. Set up enviriroment for MySQL and PHP Server by XAMPP or Docker*
+*4. Set up enviroment for MySQL and PHP Server by XAMPP or Docker*
 ```link
   XAMPP: https://www.wikihow.com/Set-up-a-Personal-Web-Server-with-XAMPP
   Docker: https://www.sitepoint.com/php-development-environment/
