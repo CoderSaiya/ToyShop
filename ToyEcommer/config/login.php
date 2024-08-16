@@ -31,7 +31,7 @@ $result = $stmt->get_result();
 // Check if a user is found and validate password
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
-    if ($password === $row['password_hash']) {
+    if (password_verify($password, $row['password_hash'])) {
         // Success
         echo json_encode(['success' => true]);
     } else {

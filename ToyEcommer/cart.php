@@ -152,8 +152,8 @@ $conn->close();
                             <img src="./images/<?php echo $product['image_url'] ?>" alt="" />
                             <div>
                                 <p><?php echo $product['name'] ?></p>
-                                <span>Price: <?php echo number_format($product['price'], 0, ",", ".") ?> đ</span> <br />
-                                <a onclick="removeFromCart(<?= $product['product_id'] ?>)">remove</a>
+                                <span>Đơn giá: <?php echo number_format($product['price'], 0, ",", ".") ?> đ</span> <br />
+                                <a onclick="removeFromCart(<?= $product['product_id'] ?>)">Xóa</a>
                             </div>
                         </div>
                     </td>

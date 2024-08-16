@@ -106,8 +106,8 @@
           <a href="./signup.php">Đăng ký</a>
         </p>
 
-        <label for="email">Email</label>
-        <input id="username" type="text" placeholder="Nhập Email" name="email" required />
+        <label for="username">Tài khoản</label>
+        <input id="username" type="text" placeholder="Nhập tài khoản" name="username" required />
 
         <label for="psw">Mật khẩu</label>
         <input

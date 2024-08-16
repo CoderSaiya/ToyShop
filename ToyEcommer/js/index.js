@@ -79,6 +79,76 @@ function loginUser() {
   );
 }
 
+function signUpUser() {
+  var username = document.getElementById("username").value;
+  var password = document.getElementById("password").value;
+  var email = document.getElementById('email').value;
+  var repeat = document.getElementById("password-repeat").value;
+  var fName = document.getElementById("fName").value;
+  var lName = document.getElementById("lName").value;
+  var role = "customer";
+
+  if (!username || !password || !email || !repeat || !fName || !lName) {
+    alert("Thông tin tài khoản không được bỏ trống.");
+    return;
+  }
+
+  if (password !== repeat) {
+    alert("Mật khẩu không trùng khớp!");
+    return;
+  }
+
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.onreadystatechange = function () {
+    if (this.readyState === 1) {
+      document.getElementById("loadingPopup").style.display = "block";
+    }
+
+    if (this.readyState == 4) {
+      setTimeout(() => {
+        document.getElementById("loadingPopup").style.display = "none";
+
+        if (this.status == 200) {
+          console.log("Response received:", this.responseText);
+          try {
+            var response = JSON.parse(this.responseText);
+            console.log("Parsed response:", response);
+
+            if (response.success) {
+              alert("Đăng Ký thành công!");
+              window.location.replace("http://localhost:3000/login.php");
+            } else {
+              alert(response.error || "Đăng ký thất bại.");
+            }
+          } catch (e) {
+            alert("Error parsing server response.");
+            console.error("Parsing error:", e);
+          }
+        } else {
+          alert("Lỗi kết nối đến máy chủ.");
+        }
+      }, 2000);
+    }
+  };
+
+  xmlhttp.open("POST", "../config/signup.php", true);
+  xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  xmlhttp.send(
+    "username=" +
+      encodeURIComponent(username) +
+      "&password=" +
+      encodeURIComponent(password) +
+      "&email=" +
+      encodeURIComponent(email) +
+      "&fName=" +
+      encodeURIComponent(fName) +
+      "&lName=" +
+      encodeURIComponent(lName) +
+      "&role=" +
+      encodeURIComponent(role)
+  );
+}
+
 function addToCart(productID) {
   const userId = localStorage.getItem("user_id");
   if (userId === undefined || userId === null) {
@@ -97,6 +167,7 @@ function addToCart(productID) {
     .then((response) => response.text())
     .then((data) => {
       alert(data);
+      window.location.reload();
     })
     .catch((error) => {
       console.log(error);

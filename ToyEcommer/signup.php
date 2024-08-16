@@ -92,7 +92,14 @@
     <!-- Login -->
     <div class="container">
         <div class="login-form">
-            <form action="">
+            <form action="" onsubmit="event.preventDefault(); signUpUser();">
+
+                <!-- load -->
+                <div id="loadingPopup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); padding: 20px; border-radius: 5px; color: #fff; text-align: center; z-index: 1000;">
+                    <p>Đang tải...</p>
+                    <div class="loader"></div>
+                </div>
+
                 <h1>Đăng ký</h1>
                 <p>
                     Vui lòng điền thông tin để tạo tài khoản. Hoặc
@@ -100,10 +107,19 @@
                 </p>
 
                 <label for="email">Email</label>
-                <input type="text" placeholder="Nhập Email" name="email" required />
+                <input id="email" type="text" placeholder="Nhập Email" name="email" required />
+
+                <label for="username">Tài khoản</label>
+                <input
+                    id="username"
+                    type="text"
+                    placeholder="Tài khoản"
+                    name="username"
+                    required />
 
                 <label for="psw">Mật khẩu</label>
                 <input
+                    id="password"
                     type="password"
                     placeholder="Nhập mật khẩu"
                     name="psw"
@@ -111,9 +127,26 @@
 
                 <label for="psw-repeat">Nhập lại mật khẩu</label>
                 <input
+                    id="password-repeat"
                     type="password"
                     placeholder="Nhập lại mật khẩu"
                     name="psw-repeat"
+                    required />
+
+                <label for="fName">Họ và tên đệm</label>
+                <input
+                    id="fName"
+                    type="text"
+                    placeholder="Họ và tên đệm"
+                    name="first-name"
+                    required />
+
+                <label for="lName">Tên</label>
+                <input
+                    id="lName"
+                    type="text"
+                    placeholder="Tên"
+                    name="last-name"
                     required />
 
                 <label>
