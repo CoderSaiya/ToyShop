@@ -26,7 +26,7 @@ $sum = $tax + $subSum;
 $countSql = "SELECT COUNT(*) as count FROM cart WHERE user_id = $user_id";
 $result = $conn->query($countSql);
 $row = $result->fetch_assoc();
-$count = $row['count'];
+$countCart = $row['count'];
 
 $cartSql = "SELECT * FROM cart A JOIN products B ON A.product_id = B.product_id WHERE A.user_id = $user_id";
 $result = $conn->query($cartSql);
@@ -101,7 +101,7 @@ $conn->close();
                     </div>
                     <a onclick="handelLoadCart()" class="icon">
                         <i class="bx bx-cart"></i>
-                        <span class="d-flex"><?php echo $count ?></span>
+                        <span class="d-flex"><?php echo $countCart ?></span>
                     </a>
                 </li>
             </ul>
@@ -127,7 +127,7 @@ $conn->close();
                 </div>
                 <a onclick="handelLoadCart()" class="icon">
                     <i class="bx bx-cart"></i>
-                    <span class="d-flex"><?php echo $count ?></span>
+                    <span class="d-flex"><?php echo $countCart ?></span>
                 </a>
             </div>
 
@@ -177,7 +177,7 @@ $conn->close();
                     <td><?php echo number_format($sum, 0, ",", ".") ?> đ</td>
                 </tr>
             </table>
-            <a href="#" class="checkout btn">Tiến hành thanh toán</a>
+            <a href="./checkout.php" class="checkout btn">Tiến hành thanh toán</a>
         </div>
     </div>
 
@@ -188,7 +188,7 @@ $conn->close();
             <a href="./product.php" class="view-more">Xem thêm</a>
         </div>
         <div class="product-center container">
-            <?php $count = 0;
+            <?php $countCart = 0;
             foreach ($newList as $product) : ?>
                 <div class="product-item">
                     <div class="overlay">
@@ -210,8 +210,8 @@ $conn->close();
                     </ul>
                 </div>
             <?php
-                $count++;
-                if ($count == 4) break;
+                $countCart++;
+                if ($countCart == 4) break;
             endforeach; ?>
         </div>
     </section>

@@ -1,8 +1,8 @@
 <?php
-require_once('./config/connect.php');
-require_once('./config/product.config.php');
+require_once(__DIR__ . '/config/product.config.php');
 
 $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$countCart = 0;
 
 if (isset($_COOKIE['username'])) {
   $username = $_COOKIE['username'];
@@ -17,7 +17,7 @@ if (isset($_COOKIE['username'])) {
   $countSql = "SELECT COUNT(*) as count FROM cart WHERE user_id = $user_id";
   $result = $conn->query($countSql);
   $row = $result->fetch_assoc();
-  $count = $row['count'];
+  $countCart = $row['count'];
 }
 
 
@@ -78,7 +78,7 @@ $conn->close();
           <a href="#contact" class="nav-link">Liên hệ</a>
         </li>
         <li class="icons d-flex">
-          <a href="./login.php" class="icon">
+          <a href="./profile.php" class="icon" id="user-icon">
             <i class="bx bx-user"></i>
           </a>
           <div class="icon">
@@ -90,15 +90,23 @@ $conn->close();
           </div>
           <a onclick="handelLoadCart()" class="icon">
             <i class="bx bx-cart"></i>
-            <span class="d-flex"><?php echo $count ?></span>
+            <span class="d-flex"><?php echo $countCart ?></span>
           </a>
         </li>
       </ul>
 
       <div class="icons d-flex">
-        <a href="./login.php" class="icon">
-          <i class="bx bx-user"></i>
-        </a>
+        <div class="icon" id="user-icon">
+          <a id="user-link" href="./profile.php">
+            <i class="bx bx-user"></i>
+          </a>
+          <div id="user-menu" class="user-menu">
+            <ul>
+              <li><a href="./profile.php">Chỉnh sửa thông tin</a></li>
+              <li><a onclick="handleLogout()">Đăng xuất</a></li>
+            </ul>
+          </div>
+        </div>
         <div class="icon">
           <i class="bx bx-search"></i>
         </div>
@@ -108,7 +116,7 @@ $conn->close();
         </div>
         <a onclick="handelLoadCart()" class="icon">
           <i class="bx bx-cart"></i>
-          <span class="d-flex"><?php echo $count ?></span>
+          <span class="d-flex"><?php echo $countCart ?></span>
         </a>
       </div>
 
@@ -127,7 +135,7 @@ $conn->close();
         </div>
       </div>
       <div class="right">
-        <span>Trang chủ/<?php echo $product['category'] ?></span>
+        <span>Trang chủ<?php echo $product['category'] ?></span>
         <h1><?php echo $product['name'] ?></h1>
         <div class="price"><?php echo number_format($product['price'], 0, ",", ".") ?> đ</div>
         <form class="form">
@@ -147,7 +155,7 @@ $conn->close();
         <a href="#" class="view-more">Xem thêm</a>
     </div>
     <div class="product-center container">
-      <?php $count = 0;
+      <?php $countCart = 0;
       foreach ($newList as $product) : ?>
         <div class="product-item">
           <div class="overlay">
@@ -169,8 +177,8 @@ $conn->close();
           </ul>
         </div>
       <?php
-        $count++;
-        if ($count == 4) break;
+        $countCart++;
+        if ($countCart == 4) break;
       endforeach; ?>
     </div>
   </section>

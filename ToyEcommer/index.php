@@ -1,6 +1,6 @@
 <?php
 require_once("./config/product.config.php");
-$count  = 0;
+$countCart  = 0;
 
 if (isset($_COOKIE['username'])) {
   $username = $_COOKIE['username'];
@@ -16,10 +16,12 @@ if (isset($_COOKIE['username'])) {
   $stmt = $conn->prepare($countSql);
   $stmt->bind_param("i", $user_id);
   $stmt->execute();
-  $stmt->bind_result($count);
+  $stmt->bind_result($countCart);
   $stmt->fetch();
   $stmt->close();
 }
+
+$count = 0;
 
 $conn->close();
 ?>
@@ -45,6 +47,12 @@ $conn->close();
 </head>
 
 <body>
+  <!-- load -->
+  <div id="loadingPopup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); padding: 20px; border-radius: 5px; color: #fff; text-align: center; z-index: 1000;">
+    <p>Đang tải...</p>
+    <div class="loader"></div>
+  </div>
+
   <!-- Header -->
   <header class="header" id="header">
     <!-- Top Nav -->
@@ -93,7 +101,7 @@ $conn->close();
             </div>
             <a onclick="handelLoadCart()" class="icon">
               <i class="bx bx-cart"></i>
-              <span class="d-flex"><?php echo $count ?></span>
+              <span class="d-flex"><?php echo $countCart ?></span>
             </a>
           </li>
         </ul>
@@ -110,8 +118,21 @@ $conn->close();
               </ul>
             </div>
           </div>
-          <div class="icon">
+          <div id="search-icon" class="icon">
             <i class="bx bx-search"></i>
+
+            <div id="searchPopup" class="search-popup">
+              <input id="searchInput" type="text" placeholder="Tìm kiếm sản phẩm" oninput="search(this.value)" />
+              <button type="submit">Search</button>
+
+              <div id="resultsContainer">
+                <div id="search-results" class="search-results">
+                  <!-- Kết quả search hiển thị ở đây -->
+                </div>
+              </div>
+            </div>
+
+
           </div>
           <div class="icon">
             <i class="bx bx-heart"></i>
@@ -119,7 +140,7 @@ $conn->close();
           </div>
           <a onclick="handelLoadCart()" class="icon">
             <i class="bx bx-cart"></i>
-            <span class="d-flex"><?php echo $count ?></span>
+            <span class="d-flex"><?php echo $countCart ?></span>
           </a>
         </div>
 
@@ -200,24 +221,30 @@ $conn->close();
       <?php foreach ($newList as $product) : ?>
         <div class="product-item">
           <div class="overlay">
-            <a href="productDetails.html" class="product-thumb">
+            <a onclick="window.location.href ='productDetails.php?id=<?php echo $product['product_id']; ?>'" class="product-thumb">
               <img src="./images/<?php echo $product['image_url'] ?>" alt="" />
             </a>
-            <span class="discount"><?php $random = random_int(1, 80);
-                                    echo $random; ?>%</span>
+            <span class="discount"><?php echo $product['discount']; ?>%</span>
           </div>
           <div class="product-info">
             <span><?php echo $product['category']; ?></span>
             <a href="productDetails.php?id=<?php echo $product['product_id']; ?>"><?php echo $product['name']; ?></a>
-            <h4><?php echo number_format(((100 - $random) / 100 * $product['price']), 0, ",", ".") ?> đ</h4>
+            <div class="price">
+              <p><del><?php echo number_format(($product['price']), 0, ",", ".") ?> đ</del></p>
+              <h4><?php echo number_format(((100 - $product['discount']) / 100 * $product['price']), 0, ",", ".") ?> đ</h4>
+            </div>
+
           </div>
           <ul class="icons">
             <li><i class="bx bx-heart"></i></li>
-            <li><i class="bx bx-search"></i></li>
+            <li onclick="window.location.href ='productDetails.php?id=<?php echo $product['product_id']; ?>'"><i class="bx bx-search"></i></li>
             <li onclick="addToCart(<?= $product['product_id'] ?>)"><i class="bx bx-cart"></i></li>
           </ul>
         </div>
-      <?php endforeach; ?>
+      <?php
+        $count++;
+        if ($count === 8) break;
+      endforeach; ?>
     </div>
   </section>
 
@@ -230,12 +257,13 @@ $conn->close();
         <a href="" class="btn btn-1">Liên hệ</a>
       </div>
       <div class="col">
-        <form action="">
+        <div class="form">
           <div>
-            <input type="email" placeholder="Địa chỉ email">
-            <a href="">Gửi</a>
+            <input id="contact-email" type="email" placeholder="Địa chỉ email" required>
+            <!-- Use a button instead of an anchor tag to avoid page reload -->
+            <button onclick="sendEmail()">Gửi</button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   </section>
