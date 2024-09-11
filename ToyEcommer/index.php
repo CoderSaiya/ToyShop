@@ -323,7 +323,7 @@ $conn->close();
 
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.4.1/glide.min.js"></script>
-<script src="./js/slider.js"></script>
-<script src="./js/index.js"></script>
+<script type="text/javascript" src="./js/slider.js"></script>
+<script type="text/javascript" src="./js/index.js"></script>
 
 </html>

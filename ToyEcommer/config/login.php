@@ -1,4 +1,5 @@
 <?php
+session_start(); // Start session at the beginning of the script
 require_once("./connect.php");
 
 // Enable error reporting for debugging
@@ -32,15 +33,34 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     if (password_verify($password, $row['password_hash'])) {
-        // Success
-        echo json_encode(['success' => true]);
+        // Set session variables on successful login
+        $_SESSION['user_id'] = $row['user_id'];
+        $_SESSION['username'] = $username;
+        $_SESSION['role'] = $row['role'];
+
+        // Determine redirection based on role
+        if ($row['role'] === 'admin') {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Đăng nhập thành công',
+                'redirect' => 'admin/admin.php',
+                'role' => 'admin'
+            ]);
+        } else {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Đăng nhập thành công',
+                'redirect' => 'index.php',
+                'role' => 'user'
+            ]);
+        }
     } else {
-        // Incorrect password.
-        echo json_encode(['success' => false, 'error' => "Invalid password $password {$row['password_hash']}"]);
+        // Incorrect password
+        echo json_encode(['success' => false, 'error' => 'Mật khẩu không hợp lệ']);
     }
 } else {
     // User not found
-    echo json_encode(['success' => false, 'error' => 'User not found']);
+    echo json_encode(['success' => false, 'error' => 'Không tìm thấy tài khoản']);
 }
 
 // Close connection

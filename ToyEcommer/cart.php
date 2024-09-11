@@ -114,7 +114,7 @@ $conn->close();
                     <div id="user-menu" class="user-menu">
                         <ul>
                             <li><a href="./profile.php">Chỉnh sửa thông tin</a></li>
-                            <li><a href="./logout.php">Đăng xuất</a></li>
+                            <li><a onclick="handleLogout()">Đăng xuất</a></li>
                         </ul>
                     </div>
                 </div>

@@ -1,5 +1,6 @@
 <?php
 require_once("./config/product.config.php");
+require_once("./config/get_order.php");
 $countCart  = 0;
 
 if (isset($_COOKIE['username'])) {
@@ -54,6 +55,8 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thông tin cá nhân</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Boxicons -->
     <link
         href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css"
@@ -275,34 +278,84 @@ $conn->close();
             </section>
 
             <section id="orders">
-                <h2>Đơn hàng gần đây</h2>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
-                <p>Danh sách các đơn hàng gần đây của người dùng.</p>
+                <div id="orders" class="mt-12">
+                    <h2>Đơn hàng của bạn</h2>
+                    <?php if (!empty($orders)): ?>
+                        <?php foreach ($orders as $order_id => $order): ?>
+                            <div class="border-t border-gray-200 py-6">
+                                <h3 class="text-lg font-semibold text-gray-800">Đơn hàng #<?php echo $order_id; ?></h3>
+                                <p class="text-gray-600">Ngày đặt: <?php echo $order['order_info']['created_at']; ?></p>
+                                <p class="text-gray-600">Tổng tiền: <?php echo $order['order_info']['total_price']; ?> đ</p>
+                                <p class="text-gray-600">Trạng thái: <?php echo $order['order_info']['status']; ?></p>
+
+                                <h4 class="mt-4 font-semibold">Sản phẩm trong đơn hàng:</h4>
+                                <ul class="space-y-2">
+                                    <?php foreach ($order['products'] as $product): ?>
+                                        <li class="flex p-4 bg-gray-50 rounded-lg gap-20">
+                                            <img src="images/<?php echo $product['image_url']; ?>" alt="" class="w-16 h-16">
+                                            <div>
+                                                <strong class="text-gray-800"><?php echo $product['name']; ?></strong><br>
+                                                <span class="text-gray-600">Số lượng: <?php echo $product['quantity']; ?></span><br>
+                                            </div>
+
+                                            <div class="ml-auto text-right">
+                                                <span class="text-gray-600">Giá: <?php echo $product['price']; ?> đ</span>
+                                            </div>
+                                        </li>
+
+                                        <?php if ($order['order_info']['status'] == 'delivered'): ?>
+                                            <div class="mt-4">
+
+                                                <form action="./config/submit_review.php" method="POST">
+                                                    <h5 class="font-semibold">Đánh giá sản phẩm</h5>
+                                                    <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
+                                                    <input type="hidden" name="order_id" value="<?php echo $order_id; ?>">
+                                                    <input type="hidden" name="user_id" value="<?php echo $order['order_info']['user_id']; ?>">
+
+                                                    <!-- Hiển thị đánh giá sao -->
+                                                    <div class="rating-stars">
+                                                        <input type="hidden" name="rating" id="rating-<?php echo $product['product_id']; ?>" value="0">
+
+                                                        <span class="star" data-value="1">★</span>
+                                                        <span class="star" data-value="2">★</span>
+                                                        <span class="star" data-value="3">★</span>
+                                                        <span class="star" data-value="4">★</span>
+                                                        <span class="star" data-value="5">★</span>
+                                                    </div>
+
+                                                    <label for="comment-<?php echo $product['product_id']; ?>">Nhận xét:</label>
+                                                    <textarea name="comment" id="comment-<?php echo $product['product_id']; ?>" class="form-control" rows="2"></textarea>
+
+                                                    <button type="submit" name="submit_review" class="btn btn-primary mt-2">Gửi đánh giá</button>
+                                                </form>
+                                            </div>
+                                            <style>
+                                                .rating-stars {
+
+                                                    gap: 5px;
+                                                }
+
+                                                .rating-stars .star {
+                                                    font-size: 1.5em;
+                                                    cursor: pointer;
+                                                    color: #ccc;
+                                                    margin-right: 20px;
+                                                    position: relative;
+                                                }
+
+                                                .rating-stars .star.selected {
+                                                    color: #ffc107;
+                                                }
+                                            </style>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="text-gray-600">Không có đơn hàng nào.</p>
+                    <?php endif; ?>
+                </div>
             </section>
         </div>
     </div>

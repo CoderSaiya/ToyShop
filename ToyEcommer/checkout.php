@@ -540,7 +540,8 @@ if ($result && $result->num_rows > 0) {
                         <td><?php echo number_format($sum, 0, ",", ".") ?> đ</td>
                     </tr>
                 </table>
-                <!-- Hidden input for total sum -->
+                <!-- Hidden input -->
+                <input type="hidden" id="paymentMethod" name="payment_method" value="stripe">
                 <input type="hidden" name="totalsum" value="<?php echo $sum; ?>">
                 <input type="hidden" name="productList" value="<?php echo htmlspecialchars(json_encode($productList), ENT_QUOTES, 'UTF-8'); ?>">
 
@@ -548,18 +549,15 @@ if ($result && $result->num_rows > 0) {
             <div class="discount"></div>
 
             <div class="container">
-
-
-
                 <div class="payment">
                     <div class="payment__title">
                         Phương thức thanh toán
                     </div>
                     <div class="payment__types">
-                        <div class="payment__type payment__type--cc active">
+                        <div class="payment__type payment__type--cc active" data-method="stripe">
                             <i class='bx bxs-credit-card'></i></i>Thẻ Visa
                         </div>
-                        <div class="payment__type payment__type--paypal">
+                        <div class="payment__type payment__type--paypal" data-method="cod">
                             <i class='bx bx-money'></i>Thanh toán khi nhận hàng
                         </div>
                     </div>
@@ -678,5 +676,6 @@ if ($result && $result->num_rows > 0) {
     </div>
 
 </body>
+<script src="./js/index.js"></script>
 
 </html>

@@ -1,5 +1,5 @@
 <?php
-// require_once("./config/success.php");
+// include_once("./config/success.php");
 ?>
 
 <!DOCTYPE html>

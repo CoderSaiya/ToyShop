@@ -17,6 +17,14 @@ if (isset($_COOKIE['username'])) {
   $countCart = $row['count'];
 }
 
+$cateSql = "SELECT * FROM categories";
+$result = $conn->query($cateSql);
+$cateList = [];
+
+while ($row = $result->fetch_assoc()) {
+  $cateList[] = $row;
+}
+
 $conn->close();
 ?>
 
@@ -25,12 +33,19 @@ $conn->close();
 
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Box icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css" />
+
+  <!-- Boxicons -->
+  <link
+    href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css"
+    rel="stylesheet" />
+  <!-- Glide js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.4.1/css/glide.core.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.4.1/css/glide.theme.css">
   <!-- Custom StyleSheet -->
   <link rel="stylesheet" href="./css/style.css" />
-  <title>Boy’s T-Shirt</title>
+  <title>Sản phẩm</title>
 </head>
 
 <body>
@@ -97,8 +112,21 @@ $conn->close();
             </ul>
           </div>
         </div>
-        <div class="icon">
+        <div id="search-icon" class="icon">
           <i class="bx bx-search"></i>
+
+          <div id="searchPopup" class="search-popup">
+            <input id="searchInput" type="text" placeholder="Tìm kiếm sản phẩm" oninput="search(this.value)" />
+            <button type="submit">Search</button>
+
+            <div id="resultsContainer">
+              <div id="search-results" class="search-results">
+                <!-- Kết quả search hiển thị ở đây -->
+              </div>
+            </div>
+          </div>
+
+
         </div>
         <div class="icon">
           <i class="bx bx-heart"></i>
@@ -119,26 +147,46 @@ $conn->close();
   <!-- All Products -->
   <section class="section all-products" id="products">
     <div class="top container">
+
       <h1>Tất cả sản phẩm</h1>
       <div>
+        <div id="sortSelect" name="sort">
+
+        </div>
+
+      </div>
+    </div>
+    <div class="product-container">
+      <!-- Left Menu -->
+      <div class="left-menu">
+        <h3>Danh mục</h3>
+        <ul>
+          <?php foreach ($cateList as $category): ?>
+            <li><a href="#" onclick="loadCategory(<?= $category['category_id'] ?>)"><?= $category['name'] ?></a></li>
+          <?php endforeach; ?>
+        </ul>
+
+        <h3>Sắp xếp</h3>
         <select id="sortSelect" name="sort" onchange="sort(this.value)">
           <option value="1">Mặc định</option>
           <option value="2">Sắp xếp theo giá</option>
           <option value="3">Sắp xếp theo giảm giá</option>
         </select>
-        <span><i class="bx bx-chevron-down"></i></span>
+      </div>
+      <div class="product-center container">
+
       </div>
     </div>
-    <div class="product-center container">
-
-    </div>
   </section>
+
   <section class="pagination">
     <!-- <div class="container">
       <span>1</span> <span>2</span> <span>3</span> <span>4</span>
       <span><i class="bx bx-right-arrow-alt"></i></span>
     </div> -->
   </section>
+  </div>
+
   <!-- Footer -->
   <footer class="footer">
     <div class="row">
@@ -165,8 +213,26 @@ $conn->close();
       </div>
     </div>
   </footer>
-  <!-- Custom Script -->
-  <script src="./js/index.js"></script>
+
 </body>
+<!-- Custom Script -->
+<script type="text/javascript" src="./js/index.js"></script>
+<!-- <script>
+  const userIcon = document.getElementById("user-icon");
+  const userMenu = document.getElementById("user-menu");
+  const userLink = document.getElementById("user-link");
+
+  const isLoggedIn = localStorage.getItem("isLogin");
+
+  if (isLoggedIn === "true") {
+    userIcon.classList.add("logged-in");
+    userLink.href = "./profile.php";
+  } else {
+    userLink.href = "./login.php";
+    userMenu.style.display = "none";
+    userIcon.classList.remove("logged-in");
+    userIcon.classList.remove("hover-enabled");
+  }
+</script> -->
 
 </html>

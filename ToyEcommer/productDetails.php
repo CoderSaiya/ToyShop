@@ -1,8 +1,10 @@
 <?php
 require_once(__DIR__ . '/config/product.config.php');
+require_once('./config/get_review.php');
 
 $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $countCart = 0;
+$reviews = []; // Khởi tạo mảng để lưu đánh giá
 
 if (isset($_COOKIE['username'])) {
   $username = $_COOKIE['username'];
@@ -20,13 +22,32 @@ if (isset($_COOKIE['username'])) {
   $countCart = $row['count'];
 }
 
-
-$productSql = "SELECT A.*, B.name AS category FROM products A JOIN categories B ON A.category_id = B.category_id AND A.product_id = $product_id";
-$result = $conn->query($productSql);
+// Truy vấn thông tin sản phẩm
+$productSql = "SELECT A.*, B.name AS category FROM products A JOIN categories B ON A.category_id = B.category_id WHERE A.product_id = ?";
+$stmt = $conn->prepare($productSql);
+$stmt->bind_param("i", $product_id);
+$stmt->execute();
+$result = $stmt->get_result();
 $product = $result->fetch_assoc();
+
+// Truy vấn đánh giá cho sản phẩm
+$reviewSql = "SELECT r.rating, r.comment, u.username 
+              FROM reviews r 
+              JOIN users u ON r.user_id = u.user_id 
+              WHERE r.product_id = ?";
+$stmt = $conn->prepare($reviewSql);
+$stmt->bind_param("i", $product_id);
+$stmt->execute();
+$reviewResult = $stmt->get_result();
+
+// Lưu đánh giá vào mảng
+while ($row = $reviewResult->fetch_assoc()) {
+  $reviews[] = $row;
+}
 
 $conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -40,7 +61,7 @@ $conn->close();
     href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css" />
   <!-- Custom StyleSheet -->
   <link rel="stylesheet" href="./css/style.css" />
-  <title>Boy’s T-Shirt - Codevo</title>
+  <title><?= $product['name'] ?></title>
 </head>
 
 <body>
@@ -135,9 +156,12 @@ $conn->close();
         </div>
       </div>
       <div class="right">
-        <span>Trang chủ<?php echo $product['category'] ?></span>
+        <span>Trang chủ > <?php echo $product['category'] ?></span>
         <h1><?php echo $product['name'] ?></h1>
-        <div class="price"><?php echo number_format($product['price'], 0, ",", ".") ?> đ</div>
+        <div class="price">
+              <p style="color:#ccc"><del><?php echo number_format(($product['price']), 0, ",", ".") ?> đ</del></p>
+              <h4><?php echo number_format(((100 - $product['discount']) / 100 * $product['price']), 0, ",", ".") ?> đ</h4>
+            </div>
         <form class="form">
           <input type="text" placeholder="1" />
           <a onclick="addToCart(<?= $product['product_id'] ?>)" class="addCart">Thêm vào giỏ hàng</a>
@@ -148,11 +172,66 @@ $conn->close();
     </div>
   </section>
 
+  <section id="section reviews">
+    <h2>Đánh giá sản phẩm</h2>
+
+    <?php if (!empty($reviews)): ?>
+      <ul class="space-y-2">
+        <?php foreach ($reviews as $review): ?>
+          <li class="flex p-4 bg-gray-50 rounded-lg gap-4">
+            <div>
+              <strong class="text-gray-800"><?php echo htmlspecialchars($review['username']); ?></strong><br>
+
+              <!-- Hiển thị số sao -->
+              <div class="stars">
+                <?php
+                $rating = intval($review['rating']); // Lấy số sao
+                for ($i = 1; $i <= 5; $i++):
+                  if ($i <= $rating): ?>
+                    <span class="star filled">★</span>
+                  <?php else: ?>
+                    <span class="star">☆</span>
+                <?php endif;
+                endfor;
+                ?>
+              </div>
+
+              <p class="text-gray-600"><?php echo htmlspecialchars($review['comment']); ?></p>
+            </div>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    <?php else: ?>
+      <p class="text-gray-600">Chưa có đánh giá nào cho sản phẩm này.</p>
+    <?php endif; ?>
+  </section>
+
+  <style>
+    #section\ reviews {
+      display: flex;
+      flex-direction: column;
+      margin-left: 200px;
+    }
+
+    .stars {
+      display: inline-block;
+    }
+
+    .star {
+      font-size: 1.2em;
+      color: #ccc;
+    }
+
+    .star.filled {
+      color: #ffc107;
+    }
+  </style>
+
   <!-- Latest Products -->
   <section class="section featured">
     <div class="top container">
-      <h1>Sản phẩm mới nhất/h1>
-        <a href="#" class="view-more">Xem thêm</a>
+      <h1>Sản phẩm mới nhất</h1>
+      <a href="#" class="view-more">Xem thêm</a>
     </div>
     <div class="product-center container">
       <?php $countCart = 0;
@@ -162,13 +241,15 @@ $conn->close();
             <a href="" class="product-thumb">
               <img src="./images/<?php echo $product['image_url'] ?>" alt="" />
             </a>
-            <span class="discount"><?php $random = random_int(1, 80);
-                                    echo $random; ?>%</span>
+            <span class="discount"><?php echo $product['discount']; ?>%</span>
           </div>
           <div class="product-info">
             <span><?php echo $product['category']; ?></span>
             <a href=""><?php echo $product['name']; ?></a>
-            <h4><?php echo number_format(((100 - $random) / 100 * $product['price']), 0, ",", ".") ?> đ</h4>
+            <div class="price">
+              <p><del><?php echo number_format(($product['price']), 0, ",", ".") ?> đ</del></p>
+              <h4><?php echo number_format(((100 - $product['discount']) / 100 * $product['price']), 0, ",", ".") ?> đ</h4>
+            </div>
           </div>
           <ul class="icons">
             <li><i class="bx bx-heart"></i></li>

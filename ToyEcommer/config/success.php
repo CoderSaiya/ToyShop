@@ -1,6 +1,7 @@
 <?php
 require_once(__DIR__ . "/connect.php");
 require_once(__DIR__ . "/../vendor/autoload.php");
+require_once("./send_email_order.php");
 
 if (!isset($_GET['session_id']) || !isset($_COOKIE['username'])) {
     die("Session ID hoặc username không hợp lệ.");
@@ -33,7 +34,7 @@ if ($session->payment_status == 'paid') {
     // Chuyển đổi chuỗi sản phẩm thành mảng
     $productListString = $_SESSION['productList'];
     // var_dump($productListString);
-    
+
     if (!$productListString) {
         $conn->query("ROLLBACK;");
         die("Danh sách sản phẩm không hợp lệ hoặc không được cung cấp.");
@@ -41,7 +42,7 @@ if ($session->payment_status == 'paid') {
 
     // Chia chuỗi thành các sản phẩm
     $products = explode('|', $productListString);
-    
+
     // Khởi tạo mảng sản phẩm
     $productList = [];
 
@@ -79,22 +80,36 @@ if ($session->payment_status == 'paid') {
         }
 
         // Cập nhật tồn kho
-        // $updateStockSql = $conn->query("
-        //     UPDATE Products
-        //     SET stock = stock - $quantity
-        //     WHERE product_id = $productId;
-        // ");
+        $updateStockSql = $conn->query("
+            UPDATE Products
+            SET stock = stock - $quantity
+            WHERE product_id = $productId;
+        ");
 
-        // if (!$updateStockSql) {
-        //     $conn->query("ROLLBACK;");
-        //     die("Lỗi khi cập nhật số lượng tồn kho: " . $conn->error);
-        // }
+        if (!$updateStockSql) {
+            $conn->query("ROLLBACK;");
+            die("Lỗi khi cập nhật số lượng tồn kho: " . $conn->error);
+        }
     }
 
     //Xóa giỏ hàng
     $delCartSql = $conn->query("DELETE FROM cart WHERE user_id = $user_id");
 
     $conn->query("COMMIT;");
+
+    // Gửi email xác nhận đơn hàng
+    $orderDetails = [
+        'order_id' => $order_id,
+        'invoice_symbol' => 'INV-' . $order_id,
+        'invoice_number' => $order_id,
+        'invoice_date' => date('Y-m-d'),
+        'customer_name' => $username,
+        'tax_id' => '1234567890'
+    ];
+    $products = getProductsByOrderId($order_id, $conn);
+
+    sendOrderConfirmationEmail($userInfo['email'], $orderDetails, $products);
+    header("Location: ../success_page.php");
 } else {
     die("Thanh toán không thành công. Vui lòng thử lại.");
 }

@@ -15,7 +15,6 @@ if (empty($recipientEmail)) {
     echo json_encode(['status' => 'error', 'message' => 'Email không được để trống']);
     exit;
 }
-
 $mail = new PHPMailer(true);
 
 // try {
@@ -41,6 +40,6 @@ $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
 
 $mail->send();
 echo json_encode(['status' => 'success', 'message' => 'Tin nhắn đã được gửi đi']);
-// } catch (Exception $e) {
-//     echo json_encode(['status' => 'error', 'message' => "Message could not be sent. Mailer Error: {$mail->ErrorInfo}"]);
-// }
+    // } catch (Exception $e) {
+    //     echo json_encode(['status' => 'error', 'message' => "Message could not be sent. Mailer Error: {$mail->ErrorInfo}"]);
+    // }

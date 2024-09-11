@@ -10,6 +10,7 @@
     href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css" />
   <!-- Custom StyleSheet -->
   <link rel="stylesheet" href="./css/style.css" />
+  <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
   <title>Login</title>
 </head>
 
@@ -131,6 +132,8 @@
           <a href="#">Điều khoản & Quyền riêng tư</a>
           của chúng tôi.
         </p>
+
+        <!-- <div class="g-recaptcha" data-sitekey="6Lcl-jgqAAAAAJY3_LabPk5U3PAlwKhw56fPGhLL"></div> -->
 
         <div class="buttons">
           <button type="button" class="cancelbtn">Hủy</button>

@@ -32,6 +32,22 @@ function loadPage(page) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  const userIcon = document.getElementById("user-icon");
+  const userMenu = document.getElementById("user-menu");
+  const userLink = document.getElementById("user-link");
+
+  const isLoggedIn = localStorage.getItem("isLogin");
+
+  if (isLoggedIn === "true") {
+    userIcon.classList.add("logged-in");
+    userLink.href = "./profile.php";
+  } else {
+    userLink.href = "./login.php";
+    userMenu.style.display = "none";
+    userIcon.classList.remove("logged-in");
+    userIcon.classList.remove("hover-enabled");
+  }
+
   if (window.location.href.includes("product.php")) {
     sort();
 
@@ -53,22 +69,73 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+});
 
-  const userIcon = document.getElementById("user-icon");
-  const userMenu = document.getElementById("user-menu");
-  const userLink = document.getElementById("user-link");
+document.addEventListener("DOMContentLoaded", function () {
+  const cardPayment = document.querySelector(".payment__type--cc");
+  const codPayment = document.querySelector(".payment__type--paypal");
 
-  const isLoggedIn = localStorage.getItem("isLogin");
+  cardPayment.addEventListener("click", function () {
+    cardPayment.classList.add("active");
+    codPayment.classList.remove("active");
+    document.getElementById("paymentMethod").value = "stripe";
+  });
 
-  if (isLoggedIn === "true") {
-    userIcon.classList.add("logged-in");
-    userLink.href = "./profile.php";
-  } else {
-    userLink.href = "./login.php";
-    userMenu.style.display = "none";
-    userIcon.classList.remove("logged-in");
-    userIcon.classList.remove("hover-enabled");
-  }
+  codPayment.addEventListener("click", function () {
+    codPayment.classList.add("active");
+    cardPayment.classList.remove("active");
+    document.getElementById("paymentMethod").value = "cod";
+  });
+});
+
+document.querySelectorAll('.rating-stars').forEach(function(starsContainer) {
+  const stars = starsContainer.querySelectorAll('.star');
+  const ratingInput = starsContainer.querySelector('input[type="hidden"]');
+
+  stars.forEach(function(star, index) {
+      star.addEventListener('click', function() {
+          const ratingValue = index + 1;
+          ratingInput.value = ratingValue;
+          stars.forEach(function(s, i) {
+              if (i < ratingValue) {
+                  s.classList.add('selected');
+              } else {
+                  s.classList.remove('selected');
+              }
+          });
+      });
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  const reviewForms = document.querySelectorAll('form[action="./config/submit_review.php"]');
+  
+  reviewForms.forEach(function (form) {
+      const productId = form.querySelector('input[name="product_id"]').value;
+      const orderId = form.querySelector('input[name="order_id"]').value;
+      const userId = form.querySelector('input[name="user_id"]').value;
+
+      // Perform an AJAX request to check if the review exists
+      fetch('./config/check_review.php', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+              product_id: productId,
+              order_id: orderId,
+              user_id: userId
+          })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.review_exists) {
+              // Hide the review form if the review already exists
+              form.style.display = 'none';
+          }
+      })
+      .catch(error => console.error('Error:', error));
+  });
 });
 
 function loginUser() {
@@ -101,8 +168,9 @@ function loginUser() {
               alert("Đăng nhập thành công!");
               localStorage.setItem("isLogin", true);
               localStorage.setItem("user_id", username);
+
               document.cookie = `username=${username}; path=/`;
-              window.location.replace("http://localhost:3000");
+              window.location.href = `http://localhost:3000/${response.redirect}`;
             } else {
               alert(response.error || "Đăng nhập thất bại.");
             }
@@ -280,9 +348,15 @@ function handleLogout() {
   document.cookie =
     "username" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
 
+  const role = localStorage.getItem("role");
+
+  if (role) {
+    localStorage.setItem("role", "");
+  }
   localStorage.setItem("isLogin", false);
   localStorage.setItem("user_id", "");
-  window.location.reload();
+
+  window.location.href = "http://localhost:3000/login.php";
 }
 
 fetch("./config/check_cookie.php")
@@ -337,36 +411,58 @@ function saveUserInfo() {
   const phone = document.getElementById("user-info-phone").value;
   const email = document.getElementById("user-info-email").value;
   let gender;
-  var genderValue = document.getElementsByName("user-info-gender");
-  for (var radio of genderValue) {
+  const genderValue = document.getElementsByName("user-info-gender");
+  for (const radio of genderValue) {
     if (radio.checked) {
       gender = radio.value;
     }
   }
   const birthday = document.getElementById("user-info-birthday").value;
   const pob = document.getElementById("user-info-pob").value;
-
-  console.log(gender, birthday, pob);
+  const resetPassword = document.getElementById("user-info-checkpw").checked;
+  const oldPassword = document.getElementById("user-info-old-pass").value;
+  const newPassword = document.getElementById("user-info-new-pass").value;
 
   if (!fName || !lName || !phone || !email || !gender || !birthday || !pob) {
     alert("Thông tin tài khoản không được bỏ trống.");
     return;
   }
 
-  var xmlhttp = new XMLHttpRequest();
+  // Create FormData object
+  const formData = new FormData();
+  formData.append("fName", fName);
+  formData.append("lName", lName);
+  formData.append("phone", phone);
+  formData.append("email", email);
+  formData.append("gender", gender);
+  formData.append("birthday", birthday);
+  formData.append("pob", pob);
+
+  // Append password fields only if checkbox is checked
+  if (resetPassword) {
+    if (!oldPassword || !newPassword) {
+      alert("Vui lòng nhập mật khẩu cũ và mật khẩu mới.");
+      return;
+    }
+    formData.append("oldPassword", oldPassword);
+    formData.append("newPassword", newPassword);
+  }
+
+  // Create XMLHttpRequest
+  const xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function () {
     if (this.readyState === 1) {
       document.getElementById("loadingPopup").style.display = "block";
     }
 
-    if (this.readyState == 4) {
+    if (this.readyState === 4) {
       setTimeout(() => {
         document.getElementById("loadingPopup").style.display = "none";
 
-        if (this.status == 200) {
+        if (this.status === 200) {
           console.log("Response received:", this.responseText);
           try {
-            var response = JSON.parse(this.responseText);
+            const response = JSON.parse(this.responseText);
             console.log("Parsed response:", response);
 
             if (response.success) {
@@ -387,23 +483,7 @@ function saveUserInfo() {
   };
 
   xmlhttp.open("POST", "../config/save_user.php", true);
-  xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-  xmlhttp.send(
-    "fName=" +
-      encodeURIComponent(fName) +
-      "&lName=" +
-      encodeURIComponent(lName) +
-      "&phone=" +
-      encodeURIComponent(phone) +
-      "&email=" +
-      encodeURIComponent(email) +
-      "&gender=" +
-      encodeURIComponent(gender) +
-      "&birthday=" +
-      encodeURIComponent(birthday) +
-      "&pob=" +
-      encodeURIComponent(pob)
-  );
+  xmlhttp.send(formData);
 }
 
 document
@@ -451,24 +531,63 @@ function search(keyword) {
   }, 300);
 }
 
+function addSkeletonLoader(count = 4) {
+  const productContainer = document.querySelector(".product-center.container");
+  productContainer.innerHTML = "";
+
+  for (let i = 0; i < count; i++) {
+    const skeleton = `
+          <div class="skeleton skeleton-product">
+              <div class="skeleton-image skeleton"></div>
+              <div class="skeleton-info">
+                  <div class="skeleton-title skeleton"></div>
+                  <div class="skeleton-price skeleton"></div>
+              </div>
+          </div>
+      `;
+    productContainer.innerHTML += skeleton;
+  }
+}
+
 function sort(select = 1, page = 1) {
   const formData = new FormData();
   formData.append("sort", select);
 
   document.querySelector(".product-center.container").innerHTML = "";
 
+  addSkeletonLoader();
   fetch("../config/filtered_product.php?page=" + page, {
     method: "POST",
     body: formData,
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
       document.querySelector(".product-center.container").innerHTML =
         data.products;
       document.querySelector(".pagination").innerHTML = data.pagination;
     })
     .catch((err) => console.log("error: " + err));
+}
+
+function loadCategory(categoryId, sort = 1, page = 1) {
+  const formData = new FormData();
+  formData.append("category_id", categoryId);
+  formData.append("sort", sort);
+
+  document.querySelector(".product-center.container").innerHTML = "";
+
+  addSkeletonLoader();
+
+  fetch("../config/filtered_product.php?page=" + page, {
+      method: "POST",
+      body: formData,
+  })
+  .then((response) => response.json())
+  .then((data) => {
+      document.querySelector(".product-center.container").innerHTML = data.products;
+      document.querySelector(".pagination").innerHTML = data.pagination;
+  })
+  .catch((err) => console.log("error: " + err));
 }
 
 function sendEmail() {
